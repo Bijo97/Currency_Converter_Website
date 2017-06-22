@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Website Kurs</title>
+
+    <!-- Bootstrap -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+    <script>
+      function pilih(tgl){
+        $.ajax({
+          type: "POST",
+          url: "/tabel",
+          contentType: 'application/json;charset=UTF-8',
+          data: {
+            tgl: tgl
+          },
+          success: function(result){
+            document.getElementById("chart").innerHTML = result;
+          }
+        });
+      }
+    </script>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Website Kurs</h1>
+      <div class="row">
+        <center><h3>Konversi mata uang:</h3></center>
+        <form action="{{ url_for('convert') }}" method="POST">
+          <div class="col-sm-2 col-sm-offset-2">
+            <select class="form-control" name="uang1" id="uang1">
+              <option value="-">Pilih mata uang:</option>
+              <option value="IDR">IDR</option>
+              <option value="JPY">JPY</option>
+              <option value="EUR">EUR</option>
+            </select>
+          </div>
+          <div class="col-sm-2">
+            <select class="form-control" name="uang2" id="uang2">
+              <option value="-">Pilih mata uang:</option>
+              <option value="IDR">IDR</option>
+              <option value="JPY">JPY</option>
+              <option value="EUR">EUR</option>
+            </select>
+          </div>
+          <div class="col-sm-3">
+            <input type="text" name="jumlah" id="jumlah" class="form-control">
+          </div>
+          <div class="col-sm-1">
+            <button type="submit" name="submit" id="submit" class="btn btn-primary">Submit</button>
+          </div>
+        </select>
+      </div><br/>
+      {% if session['hasil'] != NULL %}
+  	    <div class="row">
+  		    <center><h4>Hasil Konversi: {{session['hasil']}}</h4></center>
+  	    </div>
+  	  {% endif %}
+      <div class="row">
+        <div id="chart" style="width: 900px; height: 300px;"></div>
+      </div>
+      <div class="row">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Tanggal</th>
+              <th>IDR</th>
+              <th>JPY</th>
+              <th>EUR</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in hari %}
+              <tr>
+                <td>{{row['dates']}}</td>
+                <td>{{row['idr']}}</td>
+                <td>{{row['jpy']}}</td>
+                <td>{{row['eur']}}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      
+    </div>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+      google.charts.load('current', {'packages':['corechart']});
+      google.charts.setOnLoadCallback(drawChart);
+
+      function drawChart() {
+        var data = google.visualization.arrayToDataTable([
+          ['Dates', 'IDR', 'JPY', 'EUR'],
+          {% for row in hari %}
+            ["{{row['dates']}}",  {{row['idr']}},  {{row['jpy']}}, {{row['eur']}}],
+          {% endfor %}
+          // ['',  0,  0, 0]
+        ]);
+
+        var options = {
+          title: 'Company Performance',
+          hAxis: {title: 'Dates',  titleTextStyle: {color: '#333'}},
+          vAxis: {minValue: 0}
+        };
+
+        var chart = new google.visualization.AreaChart(document.getElementById('chart'));
+        chart.draw(data, options);
+      }
+    </script>
+    <!-- <script type='text/javascript'>//<![CDATA[ 
+		google.load('visualization', '1', {packages: ['corechart', 'bar']});
+		google.setOnLoadCallback(drawBasic);
+		 
+		function drawBasic() {
+		 
+		      var data = google.visualization.arrayToDataTable([
+		        ['Currency', 'Rate', { role: 'style' }],
+		        ['IDR', {{rates[0]}}, 'gold'],
+		        ['JPY', {{rates[1]}}, 'silver'],
+		        ['EUR', {{rates[2]}}, 'brown'],
+		      ]);
+		 
+		      var options = {
+		        title: 'Kurs Mata Uang',
+		        chartArea: {width: '80%'},
+		        hAxis: {
+		          title: '',
+		          minValue: 0
+		        },
+		        vAxis: {
+		          title: ''
+		        }
+		      };
+		 
+		      var chart = new google.visualization.BarChart(document.getElementById('chart'));
+		 
+		      chart.draw(data, options);
+		    }
+		//]]>  
+	</script> -->
+  </body>
+</html>
